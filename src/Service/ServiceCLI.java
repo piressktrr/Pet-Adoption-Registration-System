@@ -1,16 +1,31 @@
 package Service;
 
+import Repository.RepositoryInterface;
+import models.Pet;
+import models.PetDTO;
+
 import java.io.*;
 import java.util.Scanner;
 
 public class ServiceCLI {
+    // fazer todas as validações aqui
+    private RepositoryInterface repository; // tipo da interface, pra facilitar no futuro e nao desacoplar o codigo
     private Scanner inputService = new Scanner(System.in);
+
     private File formulario = null;
     private FileReader formularioFileReader = null;
 
     private BufferedReader bufferedReader = null;
 
+    public ServiceCLI(RepositoryInterface repository) {
+        this.repository = repository; // quem decide qual interface vai usar é o main
+    }
+
     public  void readFileInteger(File file) {
+        if (!file.exists()) {
+            return;
+        }
+
         // esse aqui é so pra teste e ler o formulario inteiro, sem usar nada para as perguntas
         formulario = new File(file.getAbsolutePath());
 
@@ -35,30 +50,13 @@ public class ServiceCLI {
     }
 
 
-    public void cadastrarNovoPet(File file) {
-        formulario = new File(file.getAbsolutePath());
-        try {
-            formularioFileReader = new FileReader(formulario);
-        } catch (FileNotFoundException e) {
-            System.out.println("Erro ao ler o formulario com as perguntas!! ");
-        }
 
-        bufferedReader = new BufferedReader(formularioFileReader);
+    public void cadastrarNovoPet(PetDTO petTemporary) {
 
-        String linha;
+        Pet pet = new Pet(petTemporary.getNomeSobrenome(), petTemporary.getTipoAnimal(), petTemporary.getSexo(),
+                petTemporary.getIdade(), petTemporary.getPeso(), petTemporary.getRaça());
 
-        try {
-            while ((linha = bufferedReader.readLine()) != null) {
-                if (linha.startsWith("=") || linha.isEmpty()) {
-                    continue;
-                }
-                System.out.println(linha);
-                inputService.next();
-            }
-        } catch (IOException e) {
-            System.out.println("Erro ao pegar uma linha do cadastro no formulário ");
-        }
-
+        repository.salvar(pet);
     }
 
 
