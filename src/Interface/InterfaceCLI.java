@@ -3,6 +3,7 @@ package Interface;
 import Repository.RepositoryInterface;
 import Repository.RepositoryMemoryCLI;
 import Service.ServiceCLI;
+import models.Pet;
 import models.PetDTO;
 import models.Sexo;
 import models.TipoAnimal;
@@ -20,7 +21,6 @@ public class InterfaceCLI {
     private ServiceCLI serviceCLI = new ServiceCLI(bancoDeDados);
     private final File formularioDeCadastro = new File("src/Repository/formulario");
 
-    private PetDTO petTemporary = new PetDTO();
 
     public void lerFormulario() { // só pra teste pra ler o arquivo, apagar depois
         serviceCLI.readFileInteger(formularioDeCadastro);
@@ -45,7 +45,7 @@ public class InterfaceCLI {
                 switch (opcaoSwitchCase) {
                     case 1:
                         System.out.println("Iniciando o cadastro de um novo pet... ");
-                        cadastrar();
+                        cadastrar2();
                         opcaoValida = false;
                         break;
                     case 2:
@@ -78,14 +78,15 @@ public class InterfaceCLI {
     }
 
     private void cadastrar() throws IOException {
-
+        PetDTO petTemporary = new PetDTO();
+        // cadastrar usando hashmap e map, algo que eu ainda nao tenho conhecimento, mas vou ir atrás
         Map<String, Consumer<String>> setters = Map.of(
             "1 - Qual o nome e sobrenome do pet?", petTemporary::setNomeSobrenome,
             "2 - Qual o tipo do pet (Cachorro/Gato)?",
                 v -> petTemporary.setTipoAnimal(TipoAnimal.valueOf(v.toUpperCase())),
             "3 - Qual o sexo do animal?", v -> petTemporary.setSexo(Sexo.valueOf(v.toUpperCase())),
             "4 - Qual a idade aproximada do pet?", v -> petTemporary.setIdade(Double.parseDouble(v)),
-            "5 - Qual o peso aproximado do pet?", v -> petTemporary.setPeso(Double.parseDouble(v)),
+            "5 - Qual o peso aproximado do pet?", v -> petTemporary.setPeso(v.toUpperCase()),
             "6 - Qual a raça do pet?", v -> petTemporary.setRaça(v)
         );
 
@@ -94,13 +95,68 @@ public class InterfaceCLI {
             while ((linha = lerFormulario.readLine()) != null) {
                 if (linha.isBlank()) {continue;}
 
-                String campo = linha;
+                String campo = linha.trim();
                 String resposta = input.nextLine();
                 setters.get(campo).accept(resposta);
             }
         }
 
+        try {
+            serviceCLI.cadastrarNovoPet(petTemporary);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Erro ao cadastrar na interface!!");
+        }
 
+    }
 
+    private void cadastrar2() throws IOException {
+        // cadastrar com um metodo de validação baseado em if e else e mais verboso e menos facil de entender
+        // fazendo o projeto inteiro baseado nesse cadastrar, deixar o com hashmap pra servir de evolução pro projeto
+        // futuramente.
+        PetDTO petTemporary = new PetDTO();
+
+        try (BufferedReader lerFormulario = new BufferedReader(new FileReader(formularioDeCadastro))) {
+            String linha;
+            while ((linha = lerFormulario.readLine()) != null) {
+                if (linha.isBlank() || linha.isEmpty()) {
+                    continue;
+                }
+                if (linha.contains("nome")) {
+                    System.out.println(linha);
+                    input.nextLine();
+                    petTemporary.setNomeSobrenome(input.nextLine());
+                } else if (linha.contains("tipo")) {
+                    System.out.println(linha);
+                    // dar um jeito de fazer com que o loop volte quando o cara digitar algo que nao seja cachorro/gato
+                    // mesma coisa com o sexo
+                    petTemporary.setTipoAnimal(TipoAnimal.valueOf(input.next().toUpperCase()));
+
+                } else if (linha.contains("sexo")) {
+                    System.out.println(linha);
+                    petTemporary.setSexo(Sexo.valueOf(input.next().toUpperCase()));
+                } else if (linha.contains("idade")) {
+                    System.out.println(linha);
+                    try {
+                        petTemporary.setIdade(Double.parseDouble(input.next()));
+                    } catch (NumberFormatException e) {
+                        petTemporary.setIdade(0);
+                    }
+                } else if (linha.contains("peso")) {
+                    System.out.println(linha);
+                    petTemporary.setPeso(input.next());
+
+                } else if (linha.contains("raça")) {
+                    System.out.println(linha);
+                    petTemporary.setRaça(input.next());
+                }
+
+            }
+            try {
+                serviceCLI.cadastrarNovoPet(petTemporary);
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+
+        }
     }
 }

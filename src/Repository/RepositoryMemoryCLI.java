@@ -5,6 +5,7 @@ import models.Pet;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -15,13 +16,15 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
     private int id = 1;
 
     @Override
-    public void salvar(Pet petService) {
-
+    public void salvar(Pet pet) {
+        pet.setId(this.id++);
+        pets.add(pet);
+        System.out.println(pet.getNomeSobrenome());
     }
 
     @Override
     public List<Pet> listarPets() {
-        return List.of();
+        return Collections.unmodifiableList(pets);
     }
 
     @Override
@@ -32,5 +35,10 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
     @Override
     public void deletar(int id) {
 
+    }
+
+    @Override
+    public Pet buscarPetPorId(int id) {
+        return null;
     }
 }
