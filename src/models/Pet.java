@@ -9,14 +9,24 @@ public class Pet {
     private String raça;
     private double id;
     private static final String NAO_INFORMADO = "NÃO_INFORMADO";
+    private Endereco endereco;
 
-    public Pet(String nomeSobrenome, TipoAnimal tipoAnimal, Sexo sexo, double idade, String peso, String raça) {
+    public Pet(String nomeSobrenome, TipoAnimal tipoAnimal, Endereco endereco, Sexo sexo, double idade, String peso, String raça) {
         this.nomeSobrenome = nomeSobrenome;
         this.tipoAnimal = tipoAnimal;
+        this.endereco = endereco;
         this.sexo = sexo;
         this.idade = idade;
         this.peso = peso;
         this.raça = raça;
+    }
+
+    public void setEndereco(Endereco endereco) {
+        this.endereco = endereco;
+    }
+
+    public Endereco getEndereco() {
+        return endereco;
     }
 
     public double getId() {

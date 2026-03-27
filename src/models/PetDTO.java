@@ -7,6 +7,15 @@ public class PetDTO {
     private double idade;
     private String peso;
     private String raça;
+    private Endereco endereco;
+
+    public Endereco getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(Endereco endereco) {
+        this.endereco = endereco;
+    }
 
     public String getNomeSobrenome() {
         return nomeSobrenome;

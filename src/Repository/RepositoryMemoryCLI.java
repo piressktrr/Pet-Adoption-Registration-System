@@ -19,7 +19,7 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
     public void salvar(Pet pet) {
         pet.setId(this.id++);
         pets.add(pet);
-        System.out.println(pet.getNomeSobrenome());
+
     }
 
     @Override

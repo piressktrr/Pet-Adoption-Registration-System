@@ -2,6 +2,7 @@ package Service;
 
 import Repository.RepositoryInterface;
 import exceptions.*;
+import models.Endereco;
 import models.Pet;
 import models.PetDTO;
 
@@ -12,19 +13,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ServiceCLI {
-    // fazer todas as validações aqui
+    // todas as validações aqui
     private RepositoryInterface repository; // tipo da interface, pra facilitar no futuro e nao desacoplar o codigo
     private Scanner inputService = new Scanner(System.in);
 
+    // todas os atributos aqui
     private File formulario = null;
     private FileReader formularioFileReader = null;
     private BufferedReader bufferedReader = null;
-
-    // apagar esses de cima depois
     private final String regexAZ = "(?i)[a-zà-ú]+(?:\\s[a-zà-ú]+)+";
     private final String regexSYMBOLS = "[!@#$%¨&*_]";
     private final String regexNUMBER = "\\d";
     private final Pattern patternSYMBOLS = Pattern.compile(regexSYMBOLS);
+
 
     public ServiceCLI(RepositoryInterface repository) {
         this.repository = repository; // quem decide qual interface vai usar é o main
@@ -80,7 +81,8 @@ public class ServiceCLI {
             throw new RacaInvalidaException("Raça está contendo números ou caracteres especiais!");
         }
 
-        Pet pet = new Pet(petTemporary.getNomeSobrenome(), petTemporary.getTipoAnimal(), petTemporary.getSexo(),
+        Pet pet = new Pet(petTemporary.getNomeSobrenome(), petTemporary.getTipoAnimal(), petTemporary.getEndereco(),
+                petTemporary.getSexo(),
                 petTemporary.getIdade(), petTemporary.getPeso(), petTemporary.getRaça());
 
         repository.salvar(pet);

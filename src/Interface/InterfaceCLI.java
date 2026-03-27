@@ -3,10 +3,7 @@ package Interface;
 import Repository.RepositoryInterface;
 import Repository.RepositoryMemoryCLI;
 import Service.ServiceCLI;
-import models.Pet;
-import models.PetDTO;
-import models.Sexo;
-import models.TipoAnimal;
+import models.*;
 
 import java.io.*;
 import java.util.InputMismatchException;
@@ -15,12 +12,14 @@ import java.util.Scanner;
 import java.util.function.Consumer;
 
 public class InterfaceCLI {
+    // entradas e validações
     private Scanner input = new Scanner(System.in);
     RepositoryInterface bancoDeDados = new RepositoryMemoryCLI();
-
     private ServiceCLI serviceCLI = new ServiceCLI(bancoDeDados);
-    private final File formularioDeCadastro = new File("src/Repository/formulario");
 
+    // atributos
+    private final File formularioDeCadastro = new File("src/Repository/formulario");
+    private Endereco endereco = new Endereco();
 
     public void lerFormulario() { // só pra teste pra ler o arquivo, apagar depois
         serviceCLI.readFileInteger(formularioDeCadastro);
@@ -45,7 +44,7 @@ public class InterfaceCLI {
                 switch (opcaoSwitchCase) {
                     case 1:
                         System.out.println("Iniciando o cadastro de um novo pet... ");
-                        cadastrar2();
+                        cadastrarDef();
                         opcaoValida = false;
                         break;
                     case 2:
@@ -109,7 +108,7 @@ public class InterfaceCLI {
 
     }
 
-    private void cadastrar2() throws IOException {
+    private void cadastrarDef() throws IOException {
         // cadastrar com um metodo de validação baseado em if e else e mais verboso e menos facil de entender
         // fazendo o projeto inteiro baseado nesse cadastrar, deixar o com hashmap pra servir de evolução pro projeto
         // futuramente.
@@ -125,21 +124,85 @@ public class InterfaceCLI {
                     System.out.println(linha);
                     input.nextLine();
                     petTemporary.setNomeSobrenome(input.nextLine());
+
                 } else if (linha.contains("tipo")) {
-                    System.out.println(linha);
-                    // dar um jeito de fazer com que o loop volte quando o cara digitar algo que nao seja cachorro/gato
-                    // mesma coisa com o sexo
-                    petTemporary.setTipoAnimal(TipoAnimal.valueOf(input.next().toUpperCase()));
+
+                    // acho que o certo seria fazer isso dentro do Service, mas não encontrei um jeito de fazer
+                    // então to fazendo essa "lógica" pra validar aqui mesmo, infelizmente
+                    // a mesma coisa aconteceu com o sexo ali em baixo
+
+                    for (int i = 0; i < 9999; i++) {
+                        System.out.println(linha);
+                        try {
+                            petTemporary.setTipoAnimal(TipoAnimal.valueOf(input.next().toUpperCase()));
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Digite se o pet é um Gato ou Cachorro, outros não são aceitos!");
+                            continue;
+                        }
+
+
+                        if (petTemporary.getTipoAnimal() == TipoAnimal.CACHORRO ||
+                                petTemporary.getTipoAnimal() == TipoAnimal.GATO) {
+                            break;
+                        }
+                    }
 
                 } else if (linha.contains("sexo")) {
+                    for (int i = 0; i < 9999; i++) {
+
+                        System.out.println(linha);
+                        try {
+                            petTemporary.setSexo(Sexo.valueOf(input.next().toUpperCase()));
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Digite se o pet é Masculino ou feminino (Femea ou Macho também são " +
+                                    " aceitos!!)");
+                            continue;
+                        }
+
+                        if (petTemporary.getSexo() == Sexo.MASCULINO ||
+                                petTemporary.getSexo() == Sexo.FEMININO ||
+                                petTemporary.getSexo() == Sexo.FEMEA ||
+                                petTemporary.getSexo() == Sexo.MACHO) {
+                                     break;
+                        }
+                    }
+                } else if (linha.contains("endereço")){
+                    // mesma coisa aqui, sinto que essa lógica devia ir pra service
+                    // até pensei em um jeito de fazer isso, mas aqui parece mais facil
                     System.out.println(linha);
-                    petTemporary.setSexo(Sexo.valueOf(input.next().toUpperCase()));
+                    System.out.println("Numero: ");
+                    while (true) {
+                        try {
+                            endereco.setNumeroCasa(Integer.parseInt(input.next()));
+                        } catch (NumberFormatException e) {
+                            System.out.println("Digite somente números para o  Número da Casa! (e inteiros!)");
+                            continue;
+                        }
+                        if (endereco.getNumeroCasa() >= 0) {
+                            break;
+                        }
+                    }
+                    System.out.println("Cidade: ");
+                    endereco.setCidade(input.next());
+
+                    input.nextLine();
+                    System.out.println("Rua: ");
+                    endereco.setRua(input.nextLine());
+
+                    petTemporary.setEndereco(endereco);
+
                 } else if (linha.contains("idade")) {
                     System.out.println(linha);
-                    try {
-                        petTemporary.setIdade(Double.parseDouble(input.next()));
-                    } catch (NumberFormatException e) {
-                        petTemporary.setIdade(0);
+                    while (true) {
+                        try {
+                            petTemporary.setIdade(Double.parseDouble(input.next()));
+                        } catch (NumberFormatException | NullPointerException e) {
+                            System.out.println("Somente números POSITIVOS, sem Caracteres ou números negativos!");
+                            continue;
+                        }
+                        if (petTemporary.getIdade() >= 0.1) {
+                            break;
+                        }
                     }
                 } else if (linha.contains("peso")) {
                     System.out.println(linha);
@@ -158,5 +221,16 @@ public class InterfaceCLI {
             }
 
         }
+    }
+
+    public void testeParaEndereco() {
+        // else if linha.contains "endereco"
+        // qual endereço e bairro que ele foi encontrado?
+            // numero:
+                    //endereco.setNumero().inputNext()
+            // cidade:
+                    //
+            // bairro:
+
     }
 }

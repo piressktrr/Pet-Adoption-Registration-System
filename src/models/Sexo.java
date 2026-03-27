@@ -2,5 +2,7 @@ package models;
 
 public enum Sexo {
     MASCULINO,
-    FEMININO
+    FEMININO,
+    FEMEA,
+    MACHO,
 }
