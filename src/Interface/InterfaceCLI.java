@@ -20,8 +20,9 @@ public class InterfaceCLI {
     // atributos
     private final File formularioDeCadastro = new File("src/Repository/formulario");
     private Endereco endereco = new Endereco();
+    private final String NAO_INFORMADO = "NÃO INFORMADO";
 
-    public void lerFormulario() { // só pra teste pra ler o arquivo, apagar depois
+    public void lerFormulario() { // só para teste para ler o arquivo, apagar depois
         serviceCLI.readFileInteger(formularioDeCadastro);
     }
 
@@ -78,14 +79,14 @@ public class InterfaceCLI {
 
     private void cadastrar() throws IOException {
         PetDTO petTemporary = new PetDTO();
-        // cadastrar usando hashmap e map, algo que eu ainda nao tenho conhecimento, mas vou ir atrás
+        // cadastrar usando hashmap e map, algo que eu ainda não tenho conhecimento, mas vou ir atrás
         Map<String, Consumer<String>> setters = Map.of(
             "1 - Qual o nome e sobrenome do pet?", petTemporary::setNomeSobrenome,
             "2 - Qual o tipo do pet (Cachorro/Gato)?",
                 v -> petTemporary.setTipoAnimal(TipoAnimal.valueOf(v.toUpperCase())),
             "3 - Qual o sexo do animal?", v -> petTemporary.setSexo(Sexo.valueOf(v.toUpperCase())),
             "4 - Qual a idade aproximada do pet?", v -> petTemporary.setIdade(Double.parseDouble(v)),
-            "5 - Qual o peso aproximado do pet?", v -> petTemporary.setPeso(v.toUpperCase()),
+            "5 - Qual o peso aproximado do pet?", v -> petTemporary.setPeso(Double.parseDouble(v)),
             "6 - Qual a raça do pet?", v -> petTemporary.setRaça(v)
         );
 
@@ -109,15 +110,16 @@ public class InterfaceCLI {
     }
 
     private void cadastrarDef() throws IOException {
-        // cadastrar com um metodo de validação baseado em if e else e mais verboso e menos facil de entender
-        // fazendo o projeto inteiro baseado nesse cadastrar, deixar o com hashmap pra servir de evolução pro projeto
+        // cadastrar com um método de validação baseado em if e else e mais verboso e menos fácil de entender
+        // elaborando o projeto inteiro baseado nesse cadastrar, deixar o outro
+        // com hashmap para servir de evolução no projeto
         // futuramente.
         PetDTO petTemporary = new PetDTO();
 
         try (BufferedReader lerFormulario = new BufferedReader(new FileReader(formularioDeCadastro))) {
             String linha;
             while ((linha = lerFormulario.readLine()) != null) {
-                if (linha.isBlank() || linha.isEmpty()) {
+                if (linha.isBlank()) {
                     continue;
                 }
                 if (linha.contains("nome")) {
@@ -127,61 +129,49 @@ public class InterfaceCLI {
 
                 } else if (linha.contains("tipo")) {
 
-                    // acho que o certo seria fazer isso dentro do Service, mas não encontrei um jeito de fazer
-                    // então to fazendo essa "lógica" pra validar aqui mesmo, infelizmente
-                    // a mesma coisa aconteceu com o sexo ali em baixo
-
-                    for (int i = 0; i < 9999; i++) {
+                    while (petTemporary.getTipoAnimal() != TipoAnimal.CACHORRO
+                            && petTemporary.getTipoAnimal() != TipoAnimal.GATO) {
                         System.out.println(linha);
                         try {
                             petTemporary.setTipoAnimal(TipoAnimal.valueOf(input.next().toUpperCase()));
                         } catch (IllegalArgumentException e) {
                             System.out.println("Digite se o pet é um Gato ou Cachorro, outros não são aceitos!");
-                            continue;
                         }
 
-
-                        if (petTemporary.getTipoAnimal() == TipoAnimal.CACHORRO ||
-                                petTemporary.getTipoAnimal() == TipoAnimal.GATO) {
-                            break;
-                        }
                     }
 
                 } else if (linha.contains("sexo")) {
-                    for (int i = 0; i < 9999; i++) {
-
+                    // vou ter que voltar e fazer a validação para quando a pessoa digitar espaço e dar enter/ só dar enter
+                    // para o programa falar que só aceita masculino/feminino/macho/femea
+                    // mesma coisa em cima no tipo
+                    while (petTemporary.getSexo() != Sexo.MASCULINO &&  petTemporary.getSexo() != Sexo.FEMININO
+                    && petTemporary.getSexo() != Sexo.FEMEA && petTemporary.getSexo() != Sexo.MACHO) {
                         System.out.println(linha);
                         try {
                             petTemporary.setSexo(Sexo.valueOf(input.next().toUpperCase()));
                         } catch (IllegalArgumentException e) {
-                            System.out.println("Digite se o pet é Masculino ou feminino (Femea ou Macho também são " +
+                            System.out.println("Digite se o pet é Masculino ou feminino (Fêmea ou Macho também são " +
                                     " aceitos!!)");
-                            continue;
-                        }
-
-                        if (petTemporary.getSexo() == Sexo.MASCULINO ||
-                                petTemporary.getSexo() == Sexo.FEMININO ||
-                                petTemporary.getSexo() == Sexo.FEMEA ||
-                                petTemporary.getSexo() == Sexo.MACHO) {
-                                     break;
                         }
                     }
+
                 } else if (linha.contains("endereço")){
-                    // mesma coisa aqui, sinto que essa lógica devia ir pra service
-                    // até pensei em um jeito de fazer isso, mas aqui parece mais facil
+
                     System.out.println(linha);
-                    System.out.println("Numero: ");
-                    while (true) {
+                    input.nextLine();
+                    while (endereco.getNumeroCasa() <= 0) {
+                        System.out.println("Numero: ");
                         try {
-                            endereco.setNumeroCasa(Integer.parseInt(input.next()));
+                            String respostaNulaEndereco = input.nextLine();
+                            if (respostaNulaEndereco.isBlank()) {
+                                break;
+                            }
+                            endereco.setNumeroCasa(Integer.parseInt(respostaNulaEndereco));
                         } catch (NumberFormatException e) {
                             System.out.println("Digite somente números para o  Número da Casa! (e inteiros!)");
-                            continue;
-                        }
-                        if (endereco.getNumeroCasa() >= 0) {
-                            break;
                         }
                     }
+
                     System.out.println("Cidade: ");
                     endereco.setCidade(input.next());
 
@@ -193,27 +183,54 @@ public class InterfaceCLI {
 
                 } else if (linha.contains("idade")) {
                     System.out.println(linha);
-                    while (true) {
+                    while (petTemporary.getIdade() < 0.1) {
+                        // fazer validação depois para quando o espaço for em branco/só deu enter
+                        // ai provavelmente vou ter que transformar o atributo em 'String' e tirar de double
+                        // mesma coisa para peso
                         try {
-                            petTemporary.setIdade(Double.parseDouble(input.next()));
-                        } catch (NumberFormatException | NullPointerException e) {
-                            System.out.println("Somente números POSITIVOS, sem Caracteres ou números negativos!");
+                            String respostaNulaIdade = input.nextLine();
+                            petTemporary.setIdade(Double.parseDouble(respostaNulaIdade));
+                        } catch (NumberFormatException e) {
+                            System.out.println("Somente números para a idade, " +
+                                    "sem Caracteres, números negativos ou caracteres especiais!!");
                             continue;
                         }
-                        if (petTemporary.getIdade() >= 0.1) {
-                            break;
+                        if (petTemporary.getIdade() < 0.1 ) {
+                            System.out.println("Somente números POSITIVOS para a idade!");
+
                         }
+
                     }
                 } else if (linha.contains("peso")) {
-                    System.out.println(linha);
-                    petTemporary.setPeso(input.next());
+                    while (petTemporary.getPeso() < 0.5) {
+                        System.out.println(linha);
+                        try {
+                            String  respostaNulaPeso = input.nextLine();
+                            if (respostaNulaPeso.isBlank()) {
+                                break;
+                            }
+                            petTemporary.setPeso(Double.parseDouble(respostaNulaPeso));
+                        } catch (NumberFormatException | NullPointerException e) {
+                            System.out.println("Somente números POSITIVOS para o peso, " +
+                                    "sem Caracteres, números negativos ou caracteres especiais!!");
+                            continue;
+                        }
+                        if (petTemporary.getPeso() < 0.5) {
+                            System.out.println("Somente números POSITIVOS para o peso!");
+                        }
+                    }
 
                 } else if (linha.contains("raça")) {
                     System.out.println(linha);
                     petTemporary.setRaça(input.next());
                 }
 
+
+                if (petTemporary.getNomeSobrenome().isBlank()) {
+                    petTemporary.setNomeSobrenome(NAO_INFORMADO);
+                }
             }
+
             try {
                 serviceCLI.cadastrarNovoPet(petTemporary);
             } catch (IllegalArgumentException e) {
@@ -223,14 +240,4 @@ public class InterfaceCLI {
         }
     }
 
-    public void testeParaEndereco() {
-        // else if linha.contains "endereco"
-        // qual endereço e bairro que ele foi encontrado?
-            // numero:
-                    //endereco.setNumero().inputNext()
-            // cidade:
-                    //
-            // bairro:
-
-    }
 }

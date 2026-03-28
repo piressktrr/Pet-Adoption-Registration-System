@@ -69,16 +69,25 @@ public class ServiceCLI {
             throw new NameAndLastNameInvalidFormat("Somente o nome foi passado! É necessário um sobrenome!");
         }
 
-        if (Double.parseDouble(petTemporary.getPeso()) > 60 || Double.parseDouble(petTemporary.getPeso()) < 0.5 ) {
-            throw new WeightMoreOrLessThanAppropriatedException("Peso inválido");
+        if (petTemporary.getPeso() > 60 || petTemporary.getPeso() < 0.5 ) {
+            throw new WeightMoreOrLessThanAppropriatedException("Peso inválido, maior que 60kg ou menor que 0,5kg");
         }
 
         if (petTemporary.getIdade() > 20) {
-            throw new IdadeException("Idade inválida");
+            throw new IdadeException("Idade inválida, maior que 20 anos");
         }
 
         if (petTemporary.getRaça().trim().matches(regexSYMBOLS) || petTemporary.getRaça().trim().matches(regexNUMBER)) {
-            throw new RacaInvalidaException("Raça está contendo números ou caracteres especiais!");
+            // deixar como exceção por enquanto, mas acho que vou mudar pra validar na interface depois
+            // assim como somente o nome ser passado, sem o sobrenome!
+            throw new RacaInvalidaException("Raça inválida, contém números ou caracteres especiais!");
+        }
+
+        if (petTemporary.getIdade() < 1 && petTemporary.getIdade() >= 0.1) {
+            // transformar meses em anos, se for menor que 1 ou maior igual a 0,1 ele assume automaticamente que são
+            // meses, multiplica por 10 e divide por 12, para achar os anos!
+            double tempIdade = (petTemporary.getIdade()*10) / 12;
+            petTemporary.setIdade(tempIdade);
         }
 
         Pet pet = new Pet(petTemporary.getNomeSobrenome(), petTemporary.getTipoAnimal(), petTemporary.getEndereco(),

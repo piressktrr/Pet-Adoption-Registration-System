@@ -5,7 +5,7 @@ public class PetDTO {
     private TipoAnimal tipoAnimal;
     private Sexo sexo;
     private double idade;
-    private String peso;
+    private double peso;
     private String raça;
     private Endereco endereco;
 
@@ -49,11 +49,11 @@ public class PetDTO {
         this.idade = idade;
     }
 
-    public String getPeso() {
+    public double getPeso() {
         return peso;
     }
 
-    public void setPeso(String peso) {
+    public void setPeso(double peso) {
         this.peso = peso;
     }
 
