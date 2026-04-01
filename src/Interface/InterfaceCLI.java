@@ -46,11 +46,9 @@ public class InterfaceCLI {
                     case 1:
                         System.out.println("Iniciando o cadastro de um novo pet... ");
                         cadastrarDef();
-                        opcaoValida = false;
                         break;
                     case 2:
-                        System.out.println("Selecione o ID do pet que você quer alterar: ");
-
+                        selecionarPet();
                         break;
                     case 3:
                         System.out.println("Selecione o ID do pet que você quer apagar: ");
@@ -238,6 +236,17 @@ public class InterfaceCLI {
             }
 
         }
+    }
+
+    private void selecionarPet () {
+        String menuBreve = "Quais critérios você quer usar para buscar o pet?: \n" + "-> Nome. \n" +
+                "-> Sexo. \n" + "-> Idade. \n" + "-> Peso. \n" + "-> Raça. \n" + "-> Endereço.";
+
+        System.out.println(menuBreve);
+        String inputEscolha = input.next();
+
+        serviceCLI.selecionarPetPorAtributo(inputEscolha);
+
     }
 
 }

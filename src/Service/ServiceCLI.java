@@ -17,7 +17,7 @@ public class ServiceCLI {
     private RepositoryInterface repository; // tipo da interface, pra facilitar no futuro e nao desacoplar o codigo
     private Scanner inputService = new Scanner(System.in);
 
-    // todas os atributos aqui
+    // todos os atributos aqui
     private File formulario = null;
     private FileReader formularioFileReader = null;
     private BufferedReader bufferedReader = null;
@@ -59,8 +59,6 @@ public class ServiceCLI {
 
     }
 
-
-
     public void cadastrarNovoPet(PetDTO petTemporary) {
         Matcher matcherSYMBOLS = patternSYMBOLS.matcher(petTemporary.getNomeSobrenome());
         if (matcherSYMBOLS.find()) {
@@ -97,5 +95,13 @@ public class ServiceCLI {
         repository.salvar(pet);
     }
 
-
+    public void selecionarPetPorAtributo(String atributo) {
+        if (atributo.equalsIgnoreCase("nome")) {
+            try ( BufferedReader br = new BufferedReader(new FileReader("petsCadastrados"))) {
+                System.out.println(br.readLine());
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
 }
