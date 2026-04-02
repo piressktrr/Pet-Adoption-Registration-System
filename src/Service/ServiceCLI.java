@@ -8,6 +8,7 @@ import models.PetDTO;
 
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -54,7 +55,7 @@ public class ServiceCLI {
                 System.out.println(linha);
             }
         } catch (IOException e) {
-            System.out.println("Erro ao pegar uma linha do cadastro no formulário ");
+            System.out.println(e.getMessage());
         }
 
     }
@@ -95,13 +96,9 @@ public class ServiceCLI {
         repository.salvar(pet);
     }
 
-    public void selecionarPetPorAtributo(String atributo) {
-        if (atributo.equalsIgnoreCase("nome")) {
-            try ( BufferedReader br = new BufferedReader(new FileReader("petsCadastrados"))) {
-                System.out.println(br.readLine());
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-            }
+    public void selecionarPetPorAtributo(String atributo) throws IOException {
+
         }
-    }
+
+
 }

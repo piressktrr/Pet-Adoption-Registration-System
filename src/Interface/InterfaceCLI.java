@@ -46,6 +46,7 @@ public class InterfaceCLI {
                     case 1:
                         System.out.println("Iniciando o cadastro de um novo pet... ");
                         cadastrarDef();
+                        opcaoValida = false;
                         break;
                     case 2:
                         selecionarPet();
@@ -106,7 +107,7 @@ public class InterfaceCLI {
         }
 
     }
-
+    // lembrar de arrumar quando nao escrever pra colocar NAO_INFORMADO, anta
     private void cadastrarDef() throws IOException {
         // cadastrar com um método de validação baseado em if e else e mais verboso e menos fácil de entender
         // elaborando o projeto inteiro baseado nesse cadastrar, deixar o outro
@@ -238,15 +239,53 @@ public class InterfaceCLI {
         }
     }
 
-    private void selecionarPet () {
-        String menuBreve = "Quais critérios você quer usar para buscar o pet?: \n" + "-> Nome. \n" +
+    private void selecionarPet () throws IOException {
+
+        System.out.println("Escolha seu tipo de animal: ");
+        String inputEscolhaAnimal = "";
+        String escolhaAnimalDef = "";
+        String linha;
+        int cont = 0;
+        while (!inputEscolhaAnimal.equalsIgnoreCase(TipoAnimal.CACHORRO.name()))  {
+            inputEscolhaAnimal =  input.next();
+            System.out.println("Escolha cachorro ou gato!!");
+            escolhaAnimalDef = inputEscolhaAnimal;
+        }
+
+
+        String menu = "Quais critérios você quer usar para buscar o pet?: \n" + "-> Nome. \n" +
                 "-> Sexo. \n" + "-> Idade. \n" + "-> Peso. \n" + "-> Raça. \n" + "-> Endereço.";
 
-        System.out.println(menuBreve);
-        String inputEscolha = input.next();
+        System.out.println(menu);
+        String inputEscolhaMenu = input.next();
 
-        serviceCLI.selecionarPetPorAtributo(inputEscolha);
 
+        File[] arquivos = new File("petsCadastrados").listFiles();
+
+        if (arquivos == null)
+            return;
+
+        for (File Tipo : arquivos) {
+            BufferedReader acharTipoAnimal = new BufferedReader(new FileReader(Tipo));
+            if (acharTipoAnimal.readLine().equalsIgnoreCase(escolhaAnimalDef)) {
+
+            }
+        }
+        // se escolhaanimal = gato ou cachorro E escolhamenu = nome
+        if (inputEscolhaMenu.equalsIgnoreCase("nome")) {
+            for (File arquivo : arquivos) {
+                cont++;
+                BufferedReader lerArquivo2 = new BufferedReader(new FileReader(arquivo));
+                System.out.print(cont + ". ");
+                while ((linha = lerArquivo2.readLine()) != null) {
+
+                    System.out.print(linha.replaceAll("[(0-9)]+ - ", "") + " - ");
+                    // achar um jeito de tirar o hifen no fim do programa
+                    // achar um jeito de encerrar o programa quando acaba esse loop aqui
+                }
+                System.out.println();
+            }
+        }
     }
 
 }

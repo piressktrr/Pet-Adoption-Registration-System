@@ -1,0 +1,7 @@
+1 - pedro henrique
+2 - GATO
+3 - MACHO
+4 - b, 90, a
+5 - 10.0 anos 
+6 - 5.0KG
+7 - border

@@ -64,7 +64,7 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
 
     @Override
     public List<Pet> listarPets() {
-        return Collections.unmodifiableList(pets);
+        return pets;
     }
 
     @Override
