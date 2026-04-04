@@ -2,13 +2,12 @@ package Service;
 
 import Repository.RepositoryInterface;
 import exceptions.*;
-import models.Endereco;
 import models.Pet;
 import models.PetDTO;
 
 
 import java.io.*;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -96,9 +95,25 @@ public class ServiceCLI {
         repository.salvar(pet);
     }
 
-    public void selecionarPetPorAtributo(String atributo) throws IOException {
-
-        }
+    public void selecionarPetPorAtributo(String opcao, String atributo) {
 
 
+        if (opcao.equalsIgnoreCase("nome")) {
+                List<String> petsTextoNome = repository.buscarPetPorNome(atributo);
+                if (petsTextoNome.isEmpty()) {
+                    return;
+                }
+                for (String s : petsTextoNome) {
+                    System.out.println(s);
+                }
+            } else if (opcao.equalsIgnoreCase("sexo")) {
+                List<String> petsTextoSexo = repository.buscarPetPorSexo(atributo);
+                if (petsTextoSexo.isEmpty()) {
+                    return;
+                }
+                for (String s : petsTextoSexo) {
+                    System.out.println(s);
+                }
+            }
+    }
 }

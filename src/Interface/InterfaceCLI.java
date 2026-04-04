@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
+
+
 public class InterfaceCLI {
     // entradas e validações
     private Scanner input = new Scanner(System.in);
@@ -49,7 +51,7 @@ public class InterfaceCLI {
                         opcaoValida = false;
                         break;
                     case 2:
-                        selecionarPet();
+
                         break;
                     case 3:
                         System.out.println("Selecione o ID do pet que você quer apagar: ");
@@ -60,7 +62,8 @@ public class InterfaceCLI {
                         break;
                     case 5:
                         System.out.println("Diga o critério do qual você quer listar os pets: ");
-
+                        selecionarPet();
+                        opcaoValida = false;
                         break;
                     case 6:
                         System.out.println("Saindo da aplicação..! ");
@@ -241,51 +244,17 @@ public class InterfaceCLI {
 
     private void selecionarPet () throws IOException {
 
-        System.out.println("Escolha seu tipo de animal: ");
-        String inputEscolhaAnimal = "";
-        String escolhaAnimalDef = "";
-        String linha;
-        int cont = 0;
-        while (!inputEscolhaAnimal.equalsIgnoreCase(TipoAnimal.CACHORRO.name()))  {
-            inputEscolhaAnimal =  input.next();
-            System.out.println("Escolha cachorro ou gato!!");
-            escolhaAnimalDef = inputEscolhaAnimal;
-        }
-
+         // FAZER CRITERIO DE TIPO ANIMAL AQ DEPOIS
 
         String menu = "Quais critérios você quer usar para buscar o pet?: \n" + "-> Nome. \n" +
                 "-> Sexo. \n" + "-> Idade. \n" + "-> Peso. \n" + "-> Raça. \n" + "-> Endereço.";
 
         System.out.println(menu);
         String inputEscolhaMenu = input.next();
+        System.out.println("Digite o atributo dessa escolha do menu: ");
+        String atributoEscolhaDoMenu = input.next();
+        serviceCLI.selecionarPetPorAtributo(inputEscolhaMenu, atributoEscolhaDoMenu);
 
-
-        File[] arquivos = new File("petsCadastrados").listFiles();
-
-        if (arquivos == null)
-            return;
-
-        for (File Tipo : arquivos) {
-            BufferedReader acharTipoAnimal = new BufferedReader(new FileReader(Tipo));
-            if (acharTipoAnimal.readLine().equalsIgnoreCase(escolhaAnimalDef)) {
-
-            }
-        }
-        // se escolhaanimal = gato ou cachorro E escolhamenu = nome
-        if (inputEscolhaMenu.equalsIgnoreCase("nome")) {
-            for (File arquivo : arquivos) {
-                cont++;
-                BufferedReader lerArquivo2 = new BufferedReader(new FileReader(arquivo));
-                System.out.print(cont + ". ");
-                while ((linha = lerArquivo2.readLine()) != null) {
-
-                    System.out.print(linha.replaceAll("[(0-9)]+ - ", "") + " - ");
-                    // achar um jeito de tirar o hifen no fim do programa
-                    // achar um jeito de encerrar o programa quando acaba esse loop aqui
-                }
-                System.out.println();
-            }
-        }
     }
 
 }
