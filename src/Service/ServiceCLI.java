@@ -7,6 +7,7 @@ import models.PetDTO;
 
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -25,7 +26,7 @@ public class ServiceCLI {
     private final String regexSYMBOLS = "[!@#$%¨&*_]";
     private final String regexNUMBER = "\\d";
     private final Pattern patternSYMBOLS = Pattern.compile(regexSYMBOLS);
-
+    private List<String> petsAtributos = new ArrayList<>();
 
     public ServiceCLI(RepositoryInterface repository) {
         this.repository = repository; // quem decide qual interface vai usar é o main
@@ -96,24 +97,88 @@ public class ServiceCLI {
     }
 
     public void selecionarPetPorAtributo(String opcao, String atributo) {
+        int cont = 0;
 
 
         if (opcao.equalsIgnoreCase("nome")) {
-                List<String> petsTextoNome = repository.buscarPetPorNome(atributo);
-                if (petsTextoNome.isEmpty()) {
+
+                petsAtributos = repository.buscarPetPorNome(atributo);
+                if (petsAtributos.isEmpty()) {
                     return;
                 }
-                for (String s : petsTextoNome) {
-                    System.out.println(s);
+                for (String s : petsAtributos) {
+                    System.out.println(cont + s); // ta imprimindo junto com o 1, nao sei pq
+                    cont++;
                 }
             } else if (opcao.equalsIgnoreCase("sexo")) {
-                List<String> petsTextoSexo = repository.buscarPetPorSexo(atributo);
-                if (petsTextoSexo.isEmpty()) {
+
+                petsAtributos = repository.buscarPetPorSexo(atributo);
+                if (petsAtributos.isEmpty()) {
                     return;
                 }
-                for (String s : petsTextoSexo) {
-                    System.out.println(s);
+                for (String s : petsAtributos) {
+                    System.out.println(cont + s);
+                    cont++;
                 }
-            }
+            } else if (opcao.equalsIgnoreCase("idade")){
+
+                petsAtributos = repository.buscarPetPorIdade(Double.parseDouble(atributo));
+                if (petsAtributos.isEmpty()) {
+                    return;
+                }
+                for (String s : petsAtributos) {
+                    System.out.println(cont + s);
+                    cont++;
+                }
+
+            } else if (opcao.equalsIgnoreCase("peso")) {
+
+                petsAtributos = repository.buscarPetPorPeso(Double.parseDouble(atributo));
+                if (petsAtributos.isEmpty()) {
+                return;
+                }
+
+                for (String s : petsAtributos) {
+                    System.out.println(cont + s);
+                    cont++;
+                }
+            } else if (opcao.equalsIgnoreCase("raça") || opcao.equalsIgnoreCase("raca")) {
+
+                petsAtributos = repository.buscarPetPorRaca(atributo);
+                if (petsAtributos.isEmpty()) {
+                    return;
+                }
+                for (String s : petsAtributos) {
+                    System.out.println(cont + s);
+                    cont++;
+                }
+        }
+    }
+
+    public void testarLista() {
+        petsAtributos = repository.listarPetsString();
+        if (petsAtributos.isEmpty()) {
+            System.out.println("Nenhum pet encontrado!");
+        }
+
+        for (int i = 0; i < petsAtributos.size(); i++) {
+            System.out.println("["+ (i) +"]" + petsAtributos.get(i));
+            System.out.println();
+        }
+
+        int escolha = Integer.parseInt(inputService.nextLine());
+        if (escolha < 0 || escolha >= petsAtributos.size()) {
+            System.out.println("Erro! número de escolha não reconhecido!");
+        }
+
+        System.out.println("pet escolhido");
+        System.out.println("Pet: "+petsAtributos.get(escolha));
+
+        System.out.println("Qual atributo voc");
+
+        // seleciono o numero
+        // ai ele printa esse pet com esse numero na tela
+        // ai o programa fala qual atributo ele quer mudar
+        // passa pro repository, mudar o atributo, atualiza o txt
     }
 }

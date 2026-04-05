@@ -4,14 +4,11 @@ import models.Pet;
 
 
 import java.io.*;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
-import java.util.Collections;
 import java.util.List;
 
 public class RepositoryMemoryCLI implements RepositoryInterface {
@@ -46,8 +43,8 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
 
     @Override
     public void salvar(Pet pet) {
-        pet.setId(this.id++);
         pets.add(pet);
+
         String conteudo = "1 - " + pet.getNomeSobrenome() + "\n2 - " + pet.getTipoAnimal() +
                 "\n3 - " + pet.getSexo() +
                 "\n4 - " + pet.getEndereco().getRua() + ", " + pet.getEndereco().getNumeroCasa() +
@@ -57,11 +54,27 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
         petsCadastradosPasta(pet, conteudo);
     }
 
-
-
     @Override
     public List<Pet> listarPets() {
-        return pets;
+        for (Pet pet : this.pets) {
+            System.out.println(pet);
+        }
+        return null;
+    }
+
+    @Override
+    public List<String> listarPetsString() {
+        File[] arquivos = new File("petsCadastrados").listFiles();
+        List<String> resultado = new ArrayList<>();
+
+        if (arquivos == null) {
+            return null;
+        }
+
+        for (File file : arquivos) {
+            resultado.add(lerArquivo(file));
+        }
+        return resultado;
     }
 
     @Override
@@ -104,11 +117,14 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
 
     @Override
     public String lerArquivo(File arquivo) {
+
         StringBuilder sb = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
             String linha;
+
             while ((linha = br.readLine()) != null) {
                 sb.append(linha.replaceAll("[(0-9)]+ - ", " - "));
+
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -128,7 +144,7 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
                 bufferedReader.readLine();
                 bufferedReader.readLine();
                 String sexo = bufferedReader.readLine();
-                if (sexo.equalsIgnoreCase(sexoPet)) {
+                if (sexo != null && sexo.contains(sexoPet.toUpperCase())) {
                     resultadoTerminal.add(lerArquivo(arquivo));
                 }
             } catch (IOException e) {
@@ -145,18 +161,67 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
         List<String> resultadoTerminal = new ArrayList<>();
         if (arquivos == null) return null;
 
+        for (File arquivo : arquivos) {
+            try (BufferedReader bufferedReader = new BufferedReader(new FileReader(arquivo))) {
+                for(int i = 0; i < 4; i++) {
+                    bufferedReader.readLine();
+                }
+                String idade = bufferedReader.readLine();
+                if (idade != null && idade.contains(Double.toString(idadePet))) {
+                    resultadoTerminal.add(lerArquivo(arquivo));
+                }
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
 
-        return List.of();
+        return resultadoTerminal;
     }
 
     @Override
     public List<String> buscarPetPorPeso(double pesoPet) {
-        return List.of();
+        File[] arquivos = new File("petsCadastrados").listFiles();
+        List<String> resultadoTerminal = new ArrayList<>();
+        if (arquivos == null) return null;
+
+        for (File arquivo : arquivos) {
+            try (BufferedReader bufferedReader = new BufferedReader(new FileReader(arquivo))) {
+                for(int i = 0; i < 5; i++) {
+                    bufferedReader.readLine();
+                }
+                String peso = bufferedReader.readLine();
+                if (peso != null && peso.contains(Double.toString(pesoPet))) {
+                    resultadoTerminal.add(lerArquivo(arquivo));
+                }
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        return resultadoTerminal;
     }
 
     @Override
     public List<String> buscarPetPorRaca(String racaPet) {
-        return List.of();
+        File[] arquivos = new File("petsCadastrados").listFiles();
+        List<String> resultadoTerminal = new ArrayList<>();
+        if (arquivos == null) return null;
+
+        for (File arquivo : arquivos) {
+            try (BufferedReader bufferedReader = new BufferedReader(new FileReader(arquivo))) {
+                for(int i = 0; i < 6; i++) {
+                    bufferedReader.readLine();
+                }
+                String raca = bufferedReader.readLine();
+                if (raca != null && raca.contains(racaPet)) {
+                    resultadoTerminal.add(lerArquivo(arquivo));
+                }
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        return resultadoTerminal;
     }
 
 

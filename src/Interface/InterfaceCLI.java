@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
-
-
 public class InterfaceCLI {
     // entradas e validações
     private Scanner input = new Scanner(System.in);
@@ -51,7 +49,8 @@ public class InterfaceCLI {
                         opcaoValida = false;
                         break;
                     case 2:
-
+                        System.out.println("Selecione o pet que você quer alterar! ");
+                        alterarDadosPet();
                         break;
                     case 3:
                         System.out.println("Selecione o ID do pet que você quer apagar: ");
@@ -251,10 +250,13 @@ public class InterfaceCLI {
 
         System.out.println(menu);
         String inputEscolhaMenu = input.next();
-        System.out.println("Digite o atributo dessa escolha do menu: ");
+        System.out.println("Digite o " +inputEscolhaMenu);
         String atributoEscolhaDoMenu = input.next();
         serviceCLI.selecionarPetPorAtributo(inputEscolhaMenu, atributoEscolhaDoMenu);
 
     }
 
+    private void alterarDadosPet () throws IOException {
+        serviceCLI.testarLista();
+    }
 }

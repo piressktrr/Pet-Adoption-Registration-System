@@ -8,9 +8,12 @@ import java.util.List;
 public interface RepositoryInterface {
     void salvar(Pet pet);
     List<Pet> listarPets();
+    List<String> listarPetsString();
     void petsCadastradosPasta(Pet pet, String conteudo);
-    List<String> buscarPetPorNome(String nomePet);
+
     String lerArquivo(File arquivo);
+
+    List<String> buscarPetPorNome(String nomePet);
     List<String> buscarPetPorIdade(double idadePet);
     List<String> buscarPetPorPeso(double pesoPet);
     List<String> buscarPetPorRaca(String racaPet);

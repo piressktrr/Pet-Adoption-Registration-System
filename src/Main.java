@@ -9,5 +9,6 @@ public class Main {
         RepositoryInterface repository = new RepositoryMemoryCLI(); // só trocar a classe MemoryClI que não da erro
         InterfaceCLI interfaceSystem = new InterfaceCLI();
         interfaceSystem.menu();
+
     }
 }
