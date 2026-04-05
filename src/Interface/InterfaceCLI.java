@@ -22,10 +22,6 @@ public class InterfaceCLI {
     private Endereco endereco = new Endereco();
     private final String NAO_INFORMADO = "NÃO INFORMADO";
 
-    public void lerFormulario() { // só para teste para ler o arquivo, apagar depois
-        serviceCLI.readFileInteger(formularioDeCadastro);
-    }
-
     public void menu() throws IOException {
         System.out.println();
         System.out.println("Menu: ");
@@ -51,13 +47,16 @@ public class InterfaceCLI {
                     case 2:
                         System.out.println("Selecione o pet que você quer alterar! ");
                         alterarDadosPet();
+                        opcaoValida = false;
                         break;
                     case 3:
-                        System.out.println("Selecione o ID do pet que você quer apagar: ");
-
+                        deletarPet();
+                        opcaoValida = false;
                         break;
                     case 4:
                         System.out.println("Listando todos os pets...");
+                        serviceCLI.mostrarApenasLista();
+                        opcaoValida = false;
                         break;
                     case 5:
                         System.out.println("Diga o critério do qual você quer listar os pets: ");
@@ -78,38 +77,7 @@ public class InterfaceCLI {
         }
     }
 
-    private void cadastrar() throws IOException {
-        PetDTO petTemporary = new PetDTO();
-        // cadastrar usando hashmap e map, algo que eu ainda não tenho conhecimento, mas vou ir atrás
-        Map<String, Consumer<String>> setters = Map.of(
-            "1 - Qual o nome e sobrenome do pet?", petTemporary::setNomeSobrenome,
-            "2 - Qual o tipo do pet (Cachorro/Gato)?",
-                v -> petTemporary.setTipoAnimal(TipoAnimal.valueOf(v.toUpperCase())),
-            "3 - Qual o sexo do animal?", v -> petTemporary.setSexo(Sexo.valueOf(v.toUpperCase())),
-            "4 - Qual a idade aproximada do pet?", v -> petTemporary.setIdade(Double.parseDouble(v)),
-            "5 - Qual o peso aproximado do pet?", v -> petTemporary.setPeso(Double.parseDouble(v)),
-            "6 - Qual a raça do pet?", v -> petTemporary.setRaça(v)
-        );
-
-        try (BufferedReader lerFormulario = new BufferedReader(new FileReader(formularioDeCadastro))) {
-            String linha;
-            while ((linha = lerFormulario.readLine()) != null) {
-                if (linha.isBlank()) {continue;}
-
-                String campo = linha.trim();
-                String resposta = input.nextLine();
-                setters.get(campo).accept(resposta);
-            }
-        }
-
-        try {
-            serviceCLI.cadastrarNovoPet(petTemporary);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Erro ao cadastrar na interface!!");
-        }
-
-    }
-    // lembrar de arrumar quando nao escrever pra colocar NAO_INFORMADO, anta
+    // lembrar de arrumar quando nao escrever pra colocar NAO_INFORMADO
     private void cadastrarDef() throws IOException {
         // cadastrar com um método de validação baseado em if e else e mais verboso e menos fácil de entender
         // elaborando o projeto inteiro baseado nesse cadastrar, deixar o outro
@@ -257,6 +225,10 @@ public class InterfaceCLI {
     }
 
     private void alterarDadosPet () throws IOException {
-        serviceCLI.testarLista();
+        serviceCLI.mostrarListaEAlterarDados();
+    }
+
+    private void deletarPet() {
+        serviceCLI.mostrarListaEDeletarPet();
     }
 }

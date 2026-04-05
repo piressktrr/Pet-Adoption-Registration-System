@@ -1,6 +1,8 @@
 package Repository;
 
+import models.Endereco;
 import models.Pet;
+import models.PetDTOAtualizar;
 
 
 import java.io.*;
@@ -78,13 +80,56 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
     }
 
     @Override
-    public void atualizar(Pet pet) {
+    public void atualizar(int indice, PetDTOAtualizar atualizar, Endereco endereco) {
+        File[] arquivos = new File("petsCadastrados").listFiles();
 
+        File file = arquivos[indice];
+
+        if (arquivos == null) {
+            System.out.println("Erro, arquivos nulos!");
+            return;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String nome     = br.readLine();
+            String tipo     = br.readLine();
+            String sexo     = br.readLine();
+            String enderecoA = br.readLine();
+            String idade    = br.readLine();
+            String peso     = br.readLine();
+            String raca     = br.readLine();
+
+            if (atualizar.getNomeSobrenome()  != null) nome  = atualizar.getNomeSobrenome();
+            if (endereco.getNumeroCasa() != 0 && endereco.getCidade() != null && endereco.getRua() != null)
+                enderecoA = String.valueOf(atualizar.getEndereco().getRua());
+            if (atualizar.getIdade() != 0) idade = String.valueOf(atualizar.getIdade());
+            if (atualizar.getPeso()  != 0) peso  = String.valueOf(atualizar.getPeso());
+            if (atualizar.getRaça()  != null) raca  = atualizar.getRaça();
+
+
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+                bw.write("1 - " + nome);     bw.newLine();
+                // devia ser nome e sobrenome obrigatorio, mas nao sei como fazer isso
+                bw.write(tipo);     bw.newLine();
+                bw.write(sexo);     bw.newLine();
+                bw.write("4 - " + atualizar.getEndereco().getNumeroCasa() + ", " +
+                        atualizar.getEndereco().getCidade() + ", " + atualizar.getEndereco().getRua()); bw.newLine();
+                bw.write("5 - " + idade + " ANOS");    bw.newLine();
+                bw.write("6 - " + peso + "KG");     bw.newLine();
+                bw.write("7 - " + raca);     bw.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao atualizar arquivo.");
+        }
     }
 
     @Override
-    public void deletar(int id) {
-
+    public boolean deletar(int indice) {
+        File[] arquivos = new File("petsCadastrados").listFiles();
+        if (arquivos == null) {
+            return false;
+        }
+        return arquivos[indice].delete();
     }
 
     @Override

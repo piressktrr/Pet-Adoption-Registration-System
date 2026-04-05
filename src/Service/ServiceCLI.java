@@ -1,9 +1,12 @@
 package Service;
 
+import Interface.InterfaceCLI;
 import Repository.RepositoryInterface;
 import exceptions.*;
+import models.Endereco;
 import models.Pet;
 import models.PetDTO;
+import models.PetDTOAtualizar;
 
 
 import java.io.*;
@@ -26,38 +29,11 @@ public class ServiceCLI {
     private final String regexSYMBOLS = "[!@#$%¨&*_]";
     private final String regexNUMBER = "\\d";
     private final Pattern patternSYMBOLS = Pattern.compile(regexSYMBOLS);
+    private Endereco endereco = new Endereco();
     private List<String> petsAtributos = new ArrayList<>();
 
     public ServiceCLI(RepositoryInterface repository) {
         this.repository = repository; // quem decide qual interface vai usar é o main
-    }
-
-    public  void readFileInteger(File file) {
-        if (!file.exists()) {
-            return;
-        }
-
-        // esse aqui é so pra teste e ler o formulario inteiro, sem usar nada para as perguntas
-        formulario = new File(file.getAbsolutePath());
-
-        try {
-            formularioFileReader = new FileReader(formulario);
-        } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
-        }
-
-        bufferedReader = new BufferedReader(formularioFileReader);
-
-        String linha;
-
-        try {
-            while ((linha = bufferedReader.readLine()) != null) {
-                System.out.println(linha);
-            }
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-
     }
 
     public void cadastrarNovoPet(PetDTO petTemporary) {
@@ -155,7 +131,19 @@ public class ServiceCLI {
         }
     }
 
-    public void testarLista() {
+    public void mostrarApenasLista() {
+        petsAtributos = repository.listarPetsString();
+        if (petsAtributos.isEmpty()) {
+            System.out.println("Nenhum pet encontrado!");
+        }
+        for (String s : petsAtributos) {
+            System.out.println(s);
+            System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+        }
+    }
+
+    public void mostrarListaEAlterarDados() {
+        int escolha;
         petsAtributos = repository.listarPetsString();
         if (petsAtributos.isEmpty()) {
             System.out.println("Nenhum pet encontrado!");
@@ -166,19 +154,97 @@ public class ServiceCLI {
             System.out.println();
         }
 
-        int escolha = Integer.parseInt(inputService.nextLine());
-        if (escolha < 0 || escolha >= petsAtributos.size()) {
-            System.out.println("Erro! número de escolha não reconhecido!");
+        escolha = Integer.parseInt(inputService.nextLine());
+        while (escolha < 0 || escolha >= petsAtributos.size()) {
+            System.out.println("Número de pet não encontrado, tente novamente!");
+            escolha = Integer.parseInt(inputService.next());
         }
 
-        System.out.println("pet escolhido");
+
+        System.out.println("Pet escolhido com sucesso!!");
         System.out.println("Pet: "+petsAtributos.get(escolha));
+        System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
 
-        System.out.println("Qual atributo voc");
+        PetDTOAtualizar atualizacaoPet = new PetDTOAtualizar();
 
+        System.out.print("Novo nome (Enter para manter): "); // por algum motivo não está mantendo os atributos
+        String nome = inputService.nextLine();
+        if (!nome.isBlank()) atualizacaoPet.setNomeSobrenome(nome);
+
+        System.out.println("Novo endereço!! ");
+
+        System.out.println("Novo número (Enter para manter):");
+        String numero = inputService.nextLine();
+        if(!numero.isBlank()) endereco.setNumeroCasa(Integer.parseInt(numero));
+
+        System.out.println("Nova cidade (Enter para manter): ");
+        String cidade = inputService.nextLine();
+        if(!cidade.isBlank()) endereco.setCidade(cidade);
+
+        System.out.println("Nova rua (Enter para manter): ");
+        String rua = inputService.nextLine();
+        if(!rua.isBlank()) endereco.setRua(rua);
+
+        System.out.print("Nova idade (Enter para manter): ");
+        String idade = inputService.nextLine();
+        if (!idade.isBlank()) atualizacaoPet.setIdade(Double.parseDouble(idade));
+
+        System.out.print("Novo peso (Enter para manter): ");
+        String peso = inputService.nextLine();
+        if (!peso.isBlank()) atualizacaoPet.setPeso(Double.parseDouble(peso));
+
+        System.out.print("Nova raça (Enter para manter): ");
+        String raca = inputService.nextLine();
+        if (!raca.isBlank()) atualizacaoPet.setRaça(raca);
+
+        repository.atualizar(escolha, atualizacaoPet, this.endereco);
+        System.out.println("Pet atualizado com sucesso!!, encerrando programa!");
         // seleciono o numero
         // ai ele printa esse pet com esse numero na tela
         // ai o programa fala qual atributo ele quer mudar
         // passa pro repository, mudar o atributo, atualiza o txt
+    }
+
+    public void mostrarListaEDeletarPet() {
+        petsAtributos = repository.listarPetsString();
+
+        int escolha;
+        String sn = "";
+
+        if (petsAtributos.isEmpty()) {
+            System.out.println("Nenhum pet encontrado!");
+        }
+
+        for (int i = 0; i < petsAtributos.size(); i++) {
+            System.out.println("["+ (i) +"]" + petsAtributos.get(i));
+            System.out.println();
+        }
+
+        System.out.println("Selecione o indíce do pet que você quer apagar: ");
+
+        escolha = Integer.parseInt(inputService.nextLine());
+        while (escolha < 0 || escolha >= petsAtributos.size()) {
+            System.out.println("Número de pet não encontrado, tente novamente!");
+            escolha = Integer.parseInt(inputService.next());
+        }
+
+        System.out.println("==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=---");
+        System.out.println("Pet escolhido para DELETAR: ");
+        System.out.println(petsAtributos.get(escolha));
+        System.out.println("Quer mesmo exclui-lo? (S/N): ");
+        while (!sn.equalsIgnoreCase("S") && !sn.equalsIgnoreCase("N")) {
+            sn = inputService.nextLine();
+        }
+
+        if (sn.equalsIgnoreCase("S")) {
+            boolean deletado = repository.deletar(escolha);
+            if (deletado) {
+                System.out.println("Pet deletado com sucesso!!");
+            } else {
+                System.out.println("Erro ao deletar!!");
+            }
+        } else {
+            System.out.println("Exclusão cancelada!");
+        }
     }
 }
