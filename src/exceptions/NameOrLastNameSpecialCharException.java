@@ -1,4 +1,4 @@
-package exceptions;
+package Exceptions;
 
 public class NameOrLastNameSpecialCharException extends RuntimeException {
     public NameOrLastNameSpecialCharException(String message) {

@@ -1,4 +1,4 @@
-package models;
+package Models;
 
 public class Pet {
     private String nomeSobrenome;
@@ -27,14 +27,6 @@ public class Pet {
 
     public Endereco getEndereco() {
         return endereco;
-    }
-
-    public double getId() {
-        return id;
-    }
-
-    public void setId(double id) {
-        this.id = id;
     }
 
     public String getNomeSobrenome() {

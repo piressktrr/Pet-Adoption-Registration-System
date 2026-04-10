@@ -1,4 +1,4 @@
-package exceptions;
+package Exceptions;
 
 public class RacaInvalidaException extends RuntimeException {
     public RacaInvalidaException(String message) {

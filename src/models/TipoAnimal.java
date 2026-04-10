@@ -1,4 +1,4 @@
-package models;
+package Models;
 
 public enum TipoAnimal {
     CACHORRO,

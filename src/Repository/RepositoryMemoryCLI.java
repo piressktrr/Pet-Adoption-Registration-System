@@ -1,13 +1,12 @@
 package Repository;
 
-import models.Endereco;
-import models.Pet;
-import models.PetDTOAtualizar;
+import Models.Endereco;
+import Models.Pet;
+import Models.PetDTOAtualizar;
 
 
 import java.io.*;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
@@ -15,25 +14,19 @@ import java.util.List;
 
 public class RepositoryMemoryCLI implements RepositoryInterface {
 
-    // só se preocupar aqui em salvar, validações são todas no service
     private List<Pet> pets = new ArrayList<>();
-    private int id = 1;
-
 
     @Override
     public void petsCadastradosPasta(Pet pet, String conteudo) {
-
         File pastaPetsCadastrados = new File("petsCadastrados");
         pastaPetsCadastrados.mkdirs();
 
         String petTemp = pet.getNomeSobrenome().toUpperCase().replaceAll(" ", "");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-        File arquivoPet = new File(pastaPetsCadastrados,  LocalDate.now().format(formatter)
-                + "T"
-                + LocalTime.now().getHour()
-                + LocalTime.now().getMinute()
-                + petTemp + ".txt");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmm");
+        String time = LocalDateTime.now().format(formatter);
+
+        File arquivoPet = new File(pastaPetsCadastrados,  time + "-" + petTemp + ".txt");
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(arquivoPet, true))) {
             writer.write(conteudo);
@@ -47,11 +40,15 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
     public void salvar(Pet pet) {
         pets.add(pet);
 
-        String conteudo = "1 - " + pet.getNomeSobrenome() + "\n2 - " + pet.getTipoAnimal() +
+        String conteudo = "1 - " + pet.getNomeSobrenome() +
+                "\n2 - " + pet.getTipoAnimal() +
                 "\n3 - " + pet.getSexo() +
-                "\n4 - " + pet.getEndereco().getRua() + ", " + pet.getEndereco().getNumeroCasa() +
-                ", " + pet.getEndereco().getCidade() + "\n5 - " + pet.getIdade() + " anos \n" +
-                "6 - " + pet.getPeso() + "KG\n" + "7 - " +pet.getRaça();
+                "\n4 - " + pet.getEndereco().getRua() +
+                ", " + pet.getEndereco().getNumeroCasa() +
+                ", " + pet.getEndereco().getCidade() +
+                "\n5 - " + pet.getIdade() + " anos \n" +
+                "6 - " + pet.getPeso() + "KG\n" +
+                "7 - " +pet.getRaça();
 
         petsCadastradosPasta(pet, conteudo);
     }
@@ -61,7 +58,7 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
         for (Pet pet : this.pets) {
             System.out.println(pet);
         }
-        return null;
+        return this.pets;
     }
 
     @Override
@@ -70,11 +67,12 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
         List<String> resultado = new ArrayList<>();
 
         if (arquivos == null) {
-            return null;
+            return resultado;
         }
 
         for (File file : arquivos) {
-            resultado.add(lerArquivo(file));
+            if (file.isFile())
+                resultado.add(lerArquivo(file));
         }
         return resultado;
     }
@@ -82,26 +80,33 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
     @Override
     public void atualizar(int indice, PetDTOAtualizar atualizar, Endereco endereco) {
         File[] arquivos = new File("petsCadastrados").listFiles();
-
-        File file = arquivos[indice];
-
         if (arquivos == null) {
-            System.out.println("Erro, arquivos nulos!");
+            System.out.println("Erro: pasta petsCadastrados não encontrada ou vazia.");
             return;
         }
 
+        File file = arquivos[indice];
+
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String nome     = br.readLine();
-            String tipo     = br.readLine();
-            String sexo     = br.readLine();
-            String enderecoA = br.readLine();
-            String idade    = br.readLine();
-            String peso     = br.readLine();
-            String raca     = br.readLine();
+            String nome     = br.readLine().replaceFirst("^\\d+ - ", "");
+            String tipo     = br.readLine().replaceFirst("^\\d+ - ", "");
+            String sexo     = br.readLine().replaceFirst("^\\d+ - ", "");
+            String enderecoA = br.readLine().replaceFirst("^\\d+ - ", "");
+            String idade    = br.readLine().replaceFirst("^\\d+ - ", "");
+            String peso     = br.readLine().replaceFirst("^\\d+ - ", "");
+            String raca     = br.readLine().replaceFirst("^\\d+ - ", "");
 
             if (atualizar.getNomeSobrenome()  != null) nome  = atualizar.getNomeSobrenome();
-            if (endereco.getNumeroCasa() != 0 && endereco.getCidade() != null && endereco.getRua() != null)
-                enderecoA = String.valueOf(atualizar.getEndereco().getRua());
+
+            if (atualizar.getEndereco() != null
+                    && endereco.getNumeroCasa() != 0
+                    && endereco.getCidade() != null
+                    && endereco.getRua() != null) {
+                enderecoA = atualizar.getEndereco().getRua() + ", "
+                        + atualizar.getEndereco().getNumeroCasa() + ", "
+                        + atualizar.getEndereco().getCidade();
+            }
+
             if (atualizar.getIdade() != 0) idade = String.valueOf(atualizar.getIdade());
             if (atualizar.getPeso()  != 0) peso  = String.valueOf(atualizar.getPeso());
             if (atualizar.getRaça()  != null) raca  = atualizar.getRaça();
@@ -109,17 +114,15 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
 
             try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
                 bw.write("1 - " + nome);     bw.newLine();
-                // devia ser nome e sobrenome obrigatorio, mas nao sei como fazer isso
-                bw.write(tipo);     bw.newLine();
-                bw.write(sexo);     bw.newLine();
-                bw.write("4 - " + atualizar.getEndereco().getNumeroCasa() + ", " +
-                        atualizar.getEndereco().getCidade() + ", " + atualizar.getEndereco().getRua()); bw.newLine();
+                bw.write("2 - " + tipo);     bw.newLine();
+                bw.write("3 - " + sexo);     bw.newLine();
+                bw.write("4 - " + enderecoA);     bw.newLine();
                 bw.write("5 - " + idade + " ANOS");    bw.newLine();
                 bw.write("6 - " + peso + "KG");     bw.newLine();
                 bw.write("7 - " + raca);     bw.newLine();
             }
         } catch (IOException e) {
-            System.out.println("Erro ao atualizar arquivo.");
+            System.out.println("Erro ao atualizar arquivo.: "  + e.getMessage());
         }
     }
 
@@ -137,39 +140,51 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
         StringBuilder stringBuilder;
         File[] arquivos = new File("petsCadastrados").listFiles();
         List<String> resultadoTerminal = new ArrayList<>();
-
         if (arquivos == null) return null;
 
         for (File arquivo : arquivos) {
-                try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
-                    String primeiraLinha = br.readLine();
-
-                    if (primeiraLinha.contains(nomePet)) {
-                        stringBuilder = new StringBuilder(primeiraLinha);
-                        String linha;
-                        while ((linha = br.readLine()) != null) {
-                            stringBuilder.append(linha.replaceAll("[(0-9)]+ - ", " - "));
-                        }
-                        resultadoTerminal.add(stringBuilder.toString());
+            if (!arquivo.isFile()) continue;
+            try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
+                String primeiraLinha = br.readLine();
+                    if (primeiraLinha != null && primeiraLinha.toLowerCase().contains(nomePet.toLowerCase())) {
+                        resultadoTerminal.add(lerArquivo(arquivo));
                     }
-                } catch (IOException e) {
-                     System.out.println("Erro! "+e.getMessage());
-                }
+            } catch (IOException e) {
+                System.out.println("Erro! "+e.getMessage());
             }
+        }
+        return resultadoTerminal;
+    }
 
-            return resultadoTerminal;
+    @Override
+    public List<String> buscarPetPorTipoAnimal(String tipoAnimal) {
+        File[] arquivos = new File("petsCadastrados").listFiles();
+        List<String> resultadoTerminal = new ArrayList<>();
+        if (arquivos == null) return resultadoTerminal;
+
+        for (File arquivo : arquivos) {
+            if (!arquivo.isFile()) continue;
+            try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
+                br.readLine();
+                String tipo = br.readLine();
+                if (tipo != null && tipo.toUpperCase().contains(tipoAnimal.toUpperCase())) {
+                    resultadoTerminal.add(lerArquivo(arquivo));
+                }
+            } catch (IOException e) {
+                System.out.println("Erro! " + e.getMessage());
+            }
+        }
+        return resultadoTerminal;
     }
 
     @Override
     public String lerArquivo(File arquivo) {
-
         StringBuilder sb = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
             String linha;
-
             while ((linha = br.readLine()) != null) {
                 sb.append(linha.replaceAll("[(0-9)]+ - ", " - "));
-
+                sb.append("\n");
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -182,14 +197,14 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
     public List<String> buscarPetPorSexo(String sexoPet) {
         File[] arquivos = new File("petsCadastrados").listFiles();
         List<String> resultadoTerminal = new ArrayList<>();
-        if (arquivos == null) return null;
+        if (arquivos == null) return resultadoTerminal;
 
         for (File arquivo : arquivos) {
             try (BufferedReader bufferedReader = new  BufferedReader(new FileReader(arquivo))) {
                 bufferedReader.readLine();
                 bufferedReader.readLine();
                 String sexo = bufferedReader.readLine();
-                if (sexo != null && sexo.contains(sexoPet.toUpperCase())) {
+                if (sexo != null && sexo.toUpperCase().contains(sexoPet.toUpperCase())) {
                     resultadoTerminal.add(lerArquivo(arquivo));
                 }
             } catch (IOException e) {
@@ -204,9 +219,11 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
     public List<String> buscarPetPorIdade(double idadePet) {
         File[] arquivos = new File("petsCadastrados").listFiles();
         List<String> resultadoTerminal = new ArrayList<>();
-        if (arquivos == null) return null;
+        if (arquivos == null) return resultadoTerminal;
 
         for (File arquivo : arquivos) {
+            if (!arquivo.isFile()) continue;
+
             try (BufferedReader bufferedReader = new BufferedReader(new FileReader(arquivo))) {
                 for(int i = 0; i < 4; i++) {
                     bufferedReader.readLine();
@@ -227,9 +244,11 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
     public List<String> buscarPetPorPeso(double pesoPet) {
         File[] arquivos = new File("petsCadastrados").listFiles();
         List<String> resultadoTerminal = new ArrayList<>();
-        if (arquivos == null) return null;
+        if (arquivos == null) return resultadoTerminal;
 
         for (File arquivo : arquivos) {
+            if (!arquivo.isFile()) continue;
+
             try (BufferedReader bufferedReader = new BufferedReader(new FileReader(arquivo))) {
                 for(int i = 0; i < 5; i++) {
                     bufferedReader.readLine();
@@ -250,7 +269,7 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
     public List<String> buscarPetPorRaca(String racaPet) {
         File[] arquivos = new File("petsCadastrados").listFiles();
         List<String> resultadoTerminal = new ArrayList<>();
-        if (arquivos == null) return null;
+        if (arquivos == null) return resultadoTerminal;
 
         for (File arquivo : arquivos) {
             try (BufferedReader bufferedReader = new BufferedReader(new FileReader(arquivo))) {
@@ -258,7 +277,7 @@ public class RepositoryMemoryCLI implements RepositoryInterface {
                     bufferedReader.readLine();
                 }
                 String raca = bufferedReader.readLine();
-                if (raca != null && raca.contains(racaPet)) {
+                if (raca != null && raca.toLowerCase().contains(racaPet.toLowerCase())) {
                     resultadoTerminal.add(lerArquivo(arquivo));
                 }
             } catch (IOException e) {

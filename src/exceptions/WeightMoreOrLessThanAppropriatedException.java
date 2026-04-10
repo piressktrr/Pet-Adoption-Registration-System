@@ -1,4 +1,4 @@
-package exceptions;
+package Exceptions;
 
 public class WeightMoreOrLessThanAppropriatedException extends RuntimeException {
     public WeightMoreOrLessThanAppropriatedException(String message) {

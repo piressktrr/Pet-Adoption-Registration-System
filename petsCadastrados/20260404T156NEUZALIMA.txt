@@ -1,7 +1,0 @@
-1 - neuza lima
-2 - CACHORRO
-3 - FEMEA
-4 - abc, 10, perus
-5 - 4.0 anos 
-6 - 5.0KG
-7 - border

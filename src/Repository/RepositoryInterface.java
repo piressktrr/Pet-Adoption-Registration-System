@@ -1,8 +1,8 @@
 package Repository;
 
-import models.Endereco;
-import models.Pet;
-import models.PetDTOAtualizar;
+import Models.Endereco;
+import Models.Pet;
+import Models.PetDTOAtualizar;
 
 import java.io.File;
 import java.util.List;
@@ -20,7 +20,7 @@ public interface RepositoryInterface {
     List<String> buscarPetPorPeso(double pesoPet);
     List<String> buscarPetPorRaca(String racaPet);
     List<String> buscarPetPorSexo(String sexoPet);
-
+    List<String> buscarPetPorTipoAnimal(String tipoAnimal);
 
     void atualizar(int indice, PetDTOAtualizar atualizar, Endereco endereco);
     boolean deletar(int indice);

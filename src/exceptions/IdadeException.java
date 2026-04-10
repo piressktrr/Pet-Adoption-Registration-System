@@ -1,4 +1,4 @@
-package exceptions;
+package Exceptions;
 
 public class IdadeException extends RuntimeException {
     public IdadeException(String message) {

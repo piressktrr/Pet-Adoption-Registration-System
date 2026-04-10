@@ -1,28 +1,29 @@
 package Interface;
 
 import Repository.RepositoryInterface;
-import Repository.RepositoryMemoryCLI;
 import Service.ServiceCLI;
-import models.*;
+import Models.*;
 
 import java.io.*;
 import java.util.InputMismatchException;
-import java.util.Map;
 import java.util.Scanner;
-import java.util.function.Consumer;
 
 public class InterfaceCLI {
     // entradas e validações
     private Scanner input = new Scanner(System.in);
-    RepositoryInterface bancoDeDados = new RepositoryMemoryCLI();
-    private ServiceCLI serviceCLI = new ServiceCLI(bancoDeDados);
+    RepositoryInterface bancoDeDados;
+    private ServiceCLI serviceCLI;
 
     // atributos
     private final File formularioDeCadastro = new File("src/Repository/formulario");
-    private Endereco endereco = new Endereco();
     private final String NAO_INFORMADO = "NÃO INFORMADO";
 
-    public void menu() throws IOException {
+    public InterfaceCLI(RepositoryInterface bancoDeDados) {
+        this.bancoDeDados = bancoDeDados;
+        this.serviceCLI = new ServiceCLI(bancoDeDados);
+    }
+
+    private void imprimirMenu() {
         System.out.println();
         System.out.println("Menu: ");
         System.out.println("1. Cadastrar um novo pet");
@@ -32,68 +33,62 @@ public class InterfaceCLI {
         System.out.println("5. Listar pets por algum critério (nome/raça/idade) ");
         System.out.println("6. Sair");
         System.out.println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-");
+    }
 
-        int opcaoSwitchCase;
-        boolean opcaoValida = true;
-        while (opcaoValida) {
+    public void menu() throws IOException {
+        imprimirMenu();
+        boolean rodando = true;
+        while (rodando) {
+            imprimirMenu();
             try {
-                opcaoSwitchCase = input.nextInt();
-                switch (opcaoSwitchCase) {
+                int opcaoA = input.nextInt();
+                input.nextLine();
+                switch (opcaoA) {
                     case 1:
                         System.out.println("Iniciando o cadastro de um novo pet... ");
                         cadastrarDef();
-                        opcaoValida = false;
                         break;
                     case 2:
                         System.out.println("Selecione o pet que você quer alterar! ");
                         alterarDadosPet();
-                        opcaoValida = false;
                         break;
                     case 3:
                         deletarPet();
-                        opcaoValida = false;
                         break;
                     case 4:
                         System.out.println("Listando todos os pets...");
                         serviceCLI.mostrarApenasLista();
-                        opcaoValida = false;
                         break;
                     case 5:
-                        System.out.println("Diga o critério do qual você quer listar os pets: ");
+                        System.out.println("Diga o critério do qual você quer buscar: ");
                         selecionarPet();
-                        opcaoValida = false;
                         break;
                     case 6:
                         System.out.println("Saindo da aplicação..! ");
-                        opcaoValida = false;
+                        rodando = false;
                         break;
                     default:
                         System.out.println("Número incorreto ou inválido, tente novamente");
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Letras ou caracteres especiais não são validos, finalizando aplicação! ");
+                input.nextLine();
                 break;
             }
         }
     }
 
-    // lembrar de arrumar quando nao escrever pra colocar NAO_INFORMADO
     private void cadastrarDef() throws IOException {
-        // cadastrar com um método de validação baseado em if e else e mais verboso e menos fácil de entender
-        // elaborando o projeto inteiro baseado nesse cadastrar, deixar o outro
-        // com hashmap para servir de evolução no projeto
-        // futuramente.
         PetDTO petTemporary = new PetDTO();
+        Endereco endereco = new Endereco();
 
         try (BufferedReader lerFormulario = new BufferedReader(new FileReader(formularioDeCadastro))) {
             String linha;
             while ((linha = lerFormulario.readLine()) != null) {
-                if (linha.isBlank()) {
-                    continue;
-                }
+                if (linha.isBlank()) {continue;}
+
                 if (linha.contains("nome")) {
                     System.out.println(linha);
-                    input.nextLine();
                     petTemporary.setNomeSobrenome(input.nextLine());
 
                 } else if (linha.contains("tipo")) {
@@ -102,66 +97,54 @@ public class InterfaceCLI {
                             && petTemporary.getTipoAnimal() != TipoAnimal.GATO) {
                         System.out.println(linha);
                         try {
-                            petTemporary.setTipoAnimal(TipoAnimal.valueOf(input.next().toUpperCase()));
+                            petTemporary.setTipoAnimal(TipoAnimal.valueOf(input.nextLine().toUpperCase().trim()));
                         } catch (IllegalArgumentException e) {
                             System.out.println("Digite se o pet é um Gato ou Cachorro, outros não são aceitos!");
                         }
 
                     }
-
                 } else if (linha.contains("sexo")) {
-                    // vou ter que voltar e fazer a validação para quando a pessoa digitar espaço e dar enter/ só dar enter
-                    // para o programa falar que só aceita masculino/feminino/macho/femea
-                    // mesma coisa em cima no tipo
                     while (petTemporary.getSexo() != Sexo.MASCULINO &&  petTemporary.getSexo() != Sexo.FEMININO
                     && petTemporary.getSexo() != Sexo.FEMEA && petTemporary.getSexo() != Sexo.MACHO) {
                         System.out.println(linha);
                         try {
-                            petTemporary.setSexo(Sexo.valueOf(input.next().toUpperCase()));
+                            petTemporary.setSexo(Sexo.valueOf(input.nextLine().toUpperCase().trim()));
                         } catch (IllegalArgumentException e) {
-                            System.out.println("Digite se o pet é Masculino ou feminino (Fêmea ou Macho também são " +
-                                    " aceitos!!)");
+                            System.out.println("Digite MASCULINO, FEMININO, MACHO ou FEMEA.");
                         }
                     }
 
                 } else if (linha.contains("endereço")){
-
                     System.out.println(linha);
-                    input.nextLine();
                     while (endereco.getNumeroCasa() <= 0) {
                         System.out.println("Numero: ");
                         try {
-                            String respostaNulaEndereco = input.nextLine();
-                            if (respostaNulaEndereco.isBlank()) {
+                            String resposta = input.nextLine();
+                            if (resposta.isBlank()) {
                                 break;
                             }
-                            endereco.setNumeroCasa(Integer.parseInt(respostaNulaEndereco));
+                            endereco.setNumeroCasa(Integer.parseInt(resposta));
                         } catch (NumberFormatException e) {
-                            System.out.println("Digite somente números para o  Número da Casa! (e inteiros!)");
+                            System.out.println("Digite somente números inteiros para o  Número da Casa!");
                         }
                     }
 
                     System.out.println("Cidade: ");
-                    endereco.setCidade(input.next());
+                    endereco.setCidade(input.nextLine().trim());
 
-                    input.nextLine();
                     System.out.println("Rua: ");
-                    endereco.setRua(input.nextLine());
+                    endereco.setRua(input.nextLine().trim());
 
                     petTemporary.setEndereco(endereco);
 
                 } else if (linha.contains("idade")) {
                     System.out.println(linha);
                     while (petTemporary.getIdade() < 0.1) {
-                        // fazer validação depois para quando o espaço for em branco/só deu enter
-                        // ai provavelmente vou ter que transformar o atributo em 'String' e tirar de double
-                        // mesma coisa para peso
                         try {
-                            String respostaNulaIdade = input.nextLine();
-                            petTemporary.setIdade(Double.parseDouble(respostaNulaIdade));
+                            String resposta = input.nextLine();
+                            petTemporary.setIdade(Double.parseDouble(resposta));
                         } catch (NumberFormatException e) {
-                            System.out.println("Somente números para a idade, " +
-                                    "sem Caracteres, números negativos ou caracteres especiais!!");
+                            System.out.println("Somente números para a idade!");
                             continue;
                         }
                         if (petTemporary.getIdade() < 0.1 ) {
@@ -171,8 +154,8 @@ public class InterfaceCLI {
 
                     }
                 } else if (linha.contains("peso")) {
+                    System.out.println(linha);
                     while (petTemporary.getPeso() < 0.5) {
-                        System.out.println(linha);
                         try {
                             String  respostaNulaPeso = input.nextLine();
                             if (respostaNulaPeso.isBlank()) {
@@ -180,7 +163,7 @@ public class InterfaceCLI {
                             }
                             petTemporary.setPeso(Double.parseDouble(respostaNulaPeso));
                         } catch (NumberFormatException | NullPointerException e) {
-                            System.out.println("Somente números POSITIVOS para o peso, " +
+                            System.out.println("Somente números para o peso, " +
                                     "sem Caracteres, números negativos ou caracteres especiais!!");
                             continue;
                         }
@@ -191,13 +174,13 @@ public class InterfaceCLI {
 
                 } else if (linha.contains("raça")) {
                     System.out.println(linha);
-                    petTemporary.setRaça(input.next());
+                    petTemporary.setRaça(input.nextLine().trim());
                 }
 
+            }
 
-                if (petTemporary.getNomeSobrenome().isBlank()) {
-                    petTemporary.setNomeSobrenome(NAO_INFORMADO);
-                }
+            if (petTemporary.getNomeSobrenome() == null || petTemporary.getNomeSobrenome().isBlank()) {
+                petTemporary.setNomeSobrenome(NAO_INFORMADO);
             }
 
             try {
@@ -209,18 +192,23 @@ public class InterfaceCLI {
         }
     }
 
-    private void selecionarPet () throws IOException {
+    private void selecionarPet () {
 
-         // FAZER CRITERIO DE TIPO ANIMAL AQ DEPOIS
+        System.out.println("Qual o tipo do animal? (CACHORRO / GATO)");
+        String tipo = input.nextLine().trim().toUpperCase();
+        serviceCLI.selecionarPetPorAtributo("tipoAnimal", tipo);
 
-        String menu = "Quais critérios você quer usar para buscar o pet?: \n" + "-> Nome. \n" +
-                "-> Sexo. \n" + "-> Idade. \n" + "-> Peso. \n" + "-> Raça. \n" + "-> Endereço.";
+        System.out.println("\nDeseja fazer a busca com mais algum critério? (S/N)");
+        String fazerBusca = input.nextLine().trim().toUpperCase();
+        if (!fazerBusca.equals("S")) return;
 
-        System.out.println(menu);
-        String inputEscolhaMenu = input.next();
-        System.out.println("Digite o " +inputEscolhaMenu);
-        String atributoEscolhaDoMenu = input.next();
-        serviceCLI.selecionarPetPorAtributo(inputEscolhaMenu, atributoEscolhaDoMenu);
+        System.out.println("Critérios disponíveis: Nome | Sexo | Idade | Peso | Raça | Endereço");
+        String criterio = input.nextLine().trim();
+
+        System.out.println("Digite o valor para " + criterio + ":");
+        String valor = input.nextLine().trim();
+
+        serviceCLI.selecionarPetPorAtributo(criterio, valor);
 
     }
 
