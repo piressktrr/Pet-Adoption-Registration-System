@@ -36,7 +36,6 @@ public class InterfaceCLI {
     }
 
     public void menu() throws IOException {
-        imprimirMenu();
         boolean rodando = true;
         while (rodando) {
             imprimirMenu();
